@@ -9,6 +9,13 @@
 class Int512_t
 {
 public:
+
+    Int512_t()
+    {
+        number.pop_back();
+        number.reserve(512);
+    }
+
     Int512_t(const std::string &n)
     {
         if(n.size() <= 512 && isValid(n))
@@ -78,49 +85,60 @@ public:
 
 private:
         std::vector<int> number {0};
-        
 };
 
-Int512_t operator+ (Int512_t& __lhs, Int512_t& __rhs)
+std::vector<std::vector<int>> resizeVec(std::vector<int>& a, std::vector<int>& b)
 {
-    std::vector<int> result(512);
-    std::vector<int> a = __lhs.getNumber();
-    std::vector<int> b = __rhs.getNumber();
-
+    std::vector<std::vector<int>> ab;
     int i = a.size(); int j = b.size();
 
     std::vector<int> c;
-    for(int k = abs(i-j); k >= 0; k--)
+    for (int k = abs(i - j); k > 0; k--)
         c.push_back(0);
-    
 
-    if(i > j)
+    if (i > j)
     {
         b.insert(b.begin(), c.begin(), c.end());
         a.insert(a.begin(), 0);
     }
-    else
+    else if (i < j)
     {
         a.insert(a.begin(), c.begin(), c.end());
         b.insert(b.begin(), 0);
     }
 
-    for(int it:a)
-        std::cout << it;
-    std::cout << std::endl;
-    for(int it:b)
-        std::cout << it;
+    ab.push_back(a); ab.push_back(b);
 
+    return ab;
+}
+
+Int512_t operator+ (Int512_t& __lhs, Int512_t& __rhs)
+{
+    std::vector<int> a = __lhs.getNumber();
+    std::vector<int> b = __rhs.getNumber();
+    std::vector<std::vector<int>> ab = resizeVec(a, b);
+    a = ab[0]; b = ab[1];
+    
+    int i = a.size(); int j = b.size();
     for(; i > 0; i--)
     {
         a[i] = a[i] + b[i];
-        if(a[i] > 9)
-            a[i-1]++;
+        if (a[i] > 9)
+        {
+            a[i] = a[i] - 10;
+            a[i - 1]++;
+        }
     }
 
-    return result;
+    __lhs.setNumber(a);
+
+    return __lhs;
 }
 
+/*Int512_t operator- (Int512_t __lhs, Int512_t __rhs)
+{
+
+}*/
 
 bool isPrime(int32_t p)
 {
@@ -208,11 +226,13 @@ std::string decomp(int32_t n)
     return result;
 }
 
+
 int main()
 {
-    std::string a {"100"}, b {"1000"};
+    std::string a {"9999"}, b {"0001"};
     Int512_t num1(a), num2(b);
-    num1 + num2;
-    
+    Int512_t num3(num1 + num2);
+    num3.print();
+
     return 0;
 }

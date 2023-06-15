@@ -3,7 +3,8 @@
 #include <map>
 #include <string>
 #include <vector>
-#include <windows.h>
+#include <algorithm>
+//#include <windows.h>
 
 
 class Int512_t
@@ -87,13 +88,14 @@ private:
         std::vector<int> number {0};
 };
 
+//resize vectors for further operations
 std::vector<std::vector<int>> resizeVec(std::vector<int>& a, std::vector<int>& b)
 {
     std::vector<std::vector<int>> ab;
     int i = a.size(); int j = b.size();
 
     std::vector<int> c;
-    for (int k = abs(i - j); k > 0; k--)
+    for (int k = abs(i - j); k >= 0; k--)
         c.push_back(0);
 
     if (i > j)
@@ -106,6 +108,12 @@ std::vector<std::vector<int>> resizeVec(std::vector<int>& a, std::vector<int>& b
         a.insert(a.begin(), c.begin(), c.end());
         b.insert(b.begin(), 0);
     }
+    else
+    {
+        a.insert(a.begin(), 0);
+        b.insert(b.begin(), 0);
+    }
+    
 
     ab.push_back(a); ab.push_back(b);
 
@@ -119,11 +127,11 @@ Int512_t operator+ (Int512_t& __lhs, Int512_t& __rhs)
     std::vector<std::vector<int>> ab = resizeVec(a, b);
     a = ab[0]; b = ab[1];
     
-    int i = a.size(); int j = b.size();
-    for(; i > 0; i--)
+    
+    for(int i = a.size(); i > 0; i--)
     {
         a[i] = a[i] + b[i];
-        if (a[i] > 9)
+        if(a[i] > 9)
         {
             a[i] = a[i] - 10;
             a[i - 1]++;
@@ -135,10 +143,27 @@ Int512_t operator+ (Int512_t& __lhs, Int512_t& __rhs)
     return __lhs;
 }
 
-/*Int512_t operator- (Int512_t __lhs, Int512_t __rhs)
+Int512_t operator- (Int512_t __lhs, Int512_t __rhs)
 {
+    std::vector<int> a = __lhs.getNumber();
+    std::vector<int> b = __rhs.getNumber();
+    std::vector<std::vector<int>> ab = resizeVec(a, b);
+    a = ab[0]; b = ab[1];
 
-}*/
+    for(int i = a.size(); i > 0; i--)
+    {
+        a[i] = a[i] - b[i];
+        if(a[i] < 0)
+        {
+            a[i] = a[i] + 10;
+            a[i - 1]--;
+        }
+    }
+    
+    __lhs.setNumber(a);
+
+    return __lhs;
+}
 
 bool isPrime(int32_t p)
 {
@@ -229,9 +254,9 @@ std::string decomp(int32_t n)
 
 int main()
 {
-    std::string a {"9999"}, b {"0001"};
+    std::string a {"1000"}, b {"1"};
     Int512_t num1(a), num2(b);
-    Int512_t num3(num1 + num2);
+    Int512_t num3(num1 - num2);
     num3.print();
 
     return 0;
